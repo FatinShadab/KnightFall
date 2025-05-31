@@ -1,50 +1,63 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using UnityEngine.InputSystem; // New Input System
+using UnityEngine.InputSystem; // Used for the new Unity Input System
 
-
+/// <summary>
+/// Main Game manager for the KnightFall chess system.
+/// Handles piece spawning, turn logic, board setup, and game restart.
+/// </summary>
 public class Game : MonoBehaviour
 {
+    // Prefab for the chess piece
     public GameObject chesspiece;
 
+    // 2D array representing the 8x8 chessboard grid
     private GameObject[,] positions = new GameObject[8, 8];
+
+    // Arrays to hold all black and white pieces
     private GameObject[] bPlayer = new GameObject[16];
     private GameObject[] wPlayer = new GameObject[16];
 
+    // Track which player's turn it is ('w' for white, 'b' for black)
     private char currentPlayer = 'w';
+
+    // Boolean flag to indicate if the game has ended
     private bool gameOver = false;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    /// <summary>
+    /// Called when the scene starts.
+    /// Initializes the chessboard with pieces in starting positions.
+    /// </summary>
     void Start()
     {
-        // White pieces (bottom two rows: y = 0, y = 1)
+        // Initialize white player pieces (bottom of the board)
         wPlayer = new GameObject[]
         {
-            // Back rank
+            // Major pieces on the back rank (row 0)
             Create("wRook",   0, 0), Create("wKnight", 1, 0), Create("wBishop", 2, 0), Create("wQueen", 3, 0),
             Create("wKing",   4, 0), Create("wBishop", 5, 0), Create("wKnight", 6, 0), Create("wRook",  7, 0),
 
-            // Pawn rank
+            // Pawns on row 1
             Create("wPawn",   0, 1), Create("wPawn",   1, 1), Create("wPawn",   2, 1), Create("wPawn",  3, 1),
             Create("wPawn",   4, 1), Create("wPawn",   5, 1), Create("wPawn",   6, 1), Create("wPawn",  7, 1)
         };
 
-        // Black pieces (top two rows: y = 6, y = 7)
+        // Initialize black player pieces (top of the board)
         bPlayer = new GameObject[]
         {
-            // Pawn rank
+            // Pawns on row 6
             Create("bPawn",   0, 6), Create("bPawn",   1, 6), Create("bPawn",   2, 6), Create("bPawn",  3, 6),
             Create("bPawn",   4, 6), Create("bPawn",   5, 6), Create("bPawn",   6, 6), Create("bPawn",  7, 6),
 
-            // Back rank
+            // Major pieces on the back rank (row 7)
             Create("bRook",   0, 7), Create("bKnight", 1, 7), Create("bBishop", 2, 7), Create("bQueen", 3, 7),
             Create("bKing",   4, 7), Create("bBishop", 5, 7), Create("bKnight", 6, 7), Create("bRook",  7, 7)
         };
 
-        //Set all piece positions on the positions board
+        // Place all pieces on the positions grid
         for (int i = 0; i < bPlayer.Length; i++)
         {
             SetPosition(bPlayer[i]);
@@ -52,78 +65,106 @@ public class Game : MonoBehaviour
         }
     }
 
-    public GameObject Create(string name, int x, int y)
+    /// <summary>
+    /// Instantiates a new chess piece based on name and position.
+    /// </summary>
+    GameObject Create(string name, int x, int y)
     {
+        // Instantiate the prefab off-screen
         GameObject obj = Instantiate(chesspiece, new Vector3(0, 0, -1), Quaternion.identity);
-        Chessman cm = obj.GetComponent<Chessman>(); //We have access to the GameObject, we need the script
 
-        cm.name = name; //This is a built in variable that Unity has, so we did not have to declare it before
+        // Access the Chessman script component
+        Chessman cm = obj.GetComponent<Chessman>();
+
+        // Set piece properties
+        cm.name = name;
         cm.SetXBoard(x);
         cm.SetYBoard(y);
-        cm.Activate(); //It has everything set up so it can now Activate()
+        cm.Activate(); // Calls custom activation code in Chessman
 
         return obj;
     }
 
+    /// <summary>
+    /// Places a piece into the board array at its current (x, y) position.
+    /// </summary>
     public void SetPosition(GameObject obj)
     {
         Chessman cm = obj.GetComponent<Chessman>();
-
-        //Overwrites either empty space or whatever was there
         positions[cm.GetXBoard(), cm.GetYBoard()] = obj;
     }
 
+    /// <summary>
+    /// Empties the board cell at (x, y).
+    /// </summary>
     public void SetPositionEmpty(int x, int y)
     {
         positions[x, y] = null;
     }
 
+    /// <summary>
+    /// Gets the GameObject (chess piece) at (x, y), or null if empty.
+    /// </summary>
     public GameObject GetPosition(int x, int y)
     {
         return positions[x, y];
     }
 
+    /// <summary>
+    /// Checks whether the given (x, y) is within board bounds.
+    /// </summary>
     public bool PositionOnBoard(int x, int y)
     {
-        if (x < 0 || y < 0 || x >= positions.GetLength(0) || y >= positions.GetLength(1)) return false;
-        return true;
+        return (x >= 0 && y >= 0 && x < 8 && y < 8);
     }
 
+    /// <summary>
+    /// Returns the current player character: 'w' or 'b'.
+    /// </summary>
     public char GetCurrentPlayer()
     {
         return currentPlayer;
     }
 
+    /// <summary>
+    /// Returns true if the game is over.
+    /// </summary>
     public bool IsGameOver()
     {
         return gameOver;
     }
 
+    /// <summary>
+    /// Switches the turn to the next player.
+    /// </summary>
     public void NextTurn()
     {
-        if (currentPlayer == 'w')
-        {
-            currentPlayer = 'b';
-        }
-        else
-        {
-            currentPlayer = 'w';
-        }
+        currentPlayer = (currentPlayer == 'w') ? 'b' : 'w';
     }
 
-    public void handleChessWinner(string winningColor) {
-        Debug.Log(winningColor);
+    /// <summary>
+    /// Called when a player wins the chess phase.
+    /// Triggers the duel sequence in KnightFall.
+    /// </summary>
+    public void handleChessWinner(string winningColor)
+    {
+        Debug.Log(winningColor + " wins the chess match!");
         gameOver = true;
+
+        // Later: Trigger duel scene here based on winner
     }
 
+    /// <summary>
+    /// Called once per frame.
+    /// If the game is over and player clicks, restarts the game.
+    /// </summary>
     public void Update()
     {
-        if (gameOver == true && Input.GetMouseButtonDown(0))
+        // Temporary restart logic
+        if (gameOver == true && Mouse.current.leftButton.wasPressedThisFrame)
         {
             gameOver = false;
-
-            //Using UnityEngine.SceneManagement is needed here
-            SceneManager.LoadScene("Game"); //Restarts the game by loading the scene over again
+            SceneManager.LoadScene("Game"); // Reloads the current scene
         }
     }
 }
