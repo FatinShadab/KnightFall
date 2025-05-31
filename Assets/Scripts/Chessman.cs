@@ -50,6 +50,10 @@ public class Chessman : MonoBehaviour
         }
     }
 
+    public char GetCurrentPlayer() {
+        return this.player;
+    }
+
     // Converts board coordinates into Unity world space coordinates
     public void SetCoords()
     {

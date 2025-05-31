@@ -6,6 +6,9 @@ public class MovePlate : MonoBehaviour
 {
     // A reference to the GameController (needed to access and update game state)
     public GameObject controller;
+    
+    public GameObject blackPlayerObj;
+    public GameObject whitePlayerObj;
 
     // The Chessman (piece) that this move plate belongs to (i.e., the one the player selected)
     GameObject reference = null;
@@ -20,6 +23,9 @@ public class MovePlate : MonoBehaviour
     // Called when this MovePlate object is created in the scene
     public void Start()
     {
+        blackPlayerObj = GameObject.FindGameObjectWithTag("BlackPlayer");
+        whitePlayerObj = GameObject.FindGameObjectWithTag("WhitePlayer");
+        
         // If it's an attack plate, change its color to red for visual feedback
         if (attack)
         {
@@ -46,6 +52,32 @@ public class MovePlate : MonoBehaviour
 
             // Remove the enemy piece from the scene
             Destroy(cp);
+        }
+
+        if (reference.GetComponent<Chessman>().GetCurrentPlayer() == 'b') {
+            // Debug.Log("black player");
+            if (blackPlayerObj != null)
+            {
+                // Debug.Log("black player obj found");
+                BlackPlayer blackPlayer = blackPlayerObj.GetComponent<BlackPlayer>();
+                if (blackPlayer != null)
+                {
+                    // Debug.Log("black player script found");
+                    blackPlayer.PlayAttackAnimation();
+                }
+            }
+        }
+        else {
+            if (whitePlayerObj != null)
+            {
+                // Debug.Log("black player obj found");
+                WhitePlayer whitePlayer = whitePlayerObj.GetComponent<WhitePlayer>();
+                if (whitePlayer != null)
+                {
+                    // Debug.Log("black player script found");
+                    whitePlayer.PlayAttackAnimation();
+                }
+            }
         }
 
         // Clear the piece's previous position from the game board logic
