@@ -14,6 +14,9 @@ public class Game : MonoBehaviour
     // Prefab for the chess piece
     public GameObject chesspiece;
 
+    // Reference to the Game Over UI panel
+    public GameObject gameOverUI;
+
     // 2D array representing the 8x8 chessboard grid
     private GameObject[,] positions = new GameObject[8, 8];
 
@@ -36,25 +39,19 @@ public class Game : MonoBehaviour
         // Initialize white player pieces (bottom of the board)
         wPlayer = new GameObject[]
         {
-            // Major pieces on the back rank (row 0)
-            Create("wRook",   0, 0), Create("wKnight", 1, 0), Create("wBishop", 2, 0), Create("wQueen", 3, 0),
-            Create("wKing",   4, 0), Create("wBishop", 5, 0), Create("wKnight", 6, 0), Create("wRook",  7, 0),
-
-            // Pawns on row 1
-            Create("wPawn",   0, 1), Create("wPawn",   1, 1), Create("wPawn",   2, 1), Create("wPawn",  3, 1),
-            Create("wPawn",   4, 1), Create("wPawn",   5, 1), Create("wPawn",   6, 1), Create("wPawn",  7, 1)
+            Create("wRook", 0, 0), Create("wKnight", 1, 0), Create("wBishop", 2, 0), Create("wQueen", 3, 0),
+            Create("wKing", 4, 0), Create("wBishop", 5, 0), Create("wKnight", 6, 0), Create("wRook", 7, 0),
+            Create("wPawn", 0, 1), Create("wPawn", 1, 1), Create("wPawn", 2, 1), Create("wPawn", 3, 1),
+            Create("wPawn", 4, 1), Create("wPawn", 5, 1), Create("wPawn", 6, 1), Create("wPawn", 7, 1)
         };
 
         // Initialize black player pieces (top of the board)
         bPlayer = new GameObject[]
         {
-            // Pawns on row 6
-            Create("bPawn",   0, 6), Create("bPawn",   1, 6), Create("bPawn",   2, 6), Create("bPawn",  3, 6),
-            Create("bPawn",   4, 6), Create("bPawn",   5, 6), Create("bPawn",   6, 6), Create("bPawn",  7, 6),
-
-            // Major pieces on the back rank (row 7)
-            Create("bRook",   0, 7), Create("bKnight", 1, 7), Create("bBishop", 2, 7), Create("bQueen", 3, 7),
-            Create("bKing",   4, 7), Create("bBishop", 5, 7), Create("bKnight", 6, 7), Create("bRook",  7, 7)
+            Create("bPawn", 0, 6), Create("bPawn", 1, 6), Create("bPawn", 2, 6), Create("bPawn", 3, 6),
+            Create("bPawn", 4, 6), Create("bPawn", 5, 6), Create("bPawn", 6, 6), Create("bPawn", 7, 6),
+            Create("bRook", 0, 7), Create("bKnight", 1, 7), Create("bBishop", 2, 7), Create("bQueen", 3, 7),
+            Create("bKing", 4, 7), Create("bBishop", 5, 7), Create("bKnight", 6, 7), Create("bRook", 7, 7)
         };
 
         // Place all pieces on the positions grid
@@ -68,20 +65,18 @@ public class Game : MonoBehaviour
     /// <summary>
     /// Instantiates a new chess piece based on name and position.
     /// </summary>
+    /// <param name="name">The name of the chess piece (e.g., "wPawn").</param>
+    /// <param name="x">X coordinate on the board.</param>
+    /// <param name="y">Y coordinate on the board.</param>
+    /// <returns>Instantiated GameObject of the chess piece.</returns>
     GameObject Create(string name, int x, int y)
     {
-        // Instantiate the prefab off-screen
         GameObject obj = Instantiate(chesspiece, new Vector3(0, 0, -1), Quaternion.identity);
-
-        // Access the Chessman script component
         Chessman cm = obj.GetComponent<Chessman>();
-
-        // Set piece properties
         cm.name = name;
         cm.SetXBoard(x);
         cm.SetYBoard(y);
-        cm.Activate(); // Calls custom activation code in Chessman
-
+        cm.Activate();
         return obj;
     }
 
@@ -144,27 +139,47 @@ public class Game : MonoBehaviour
 
     /// <summary>
     /// Called when a player wins the chess phase.
-    /// Triggers the duel sequence in KnightFall.
+    /// Triggers the duel sequence in KnightFall (or Game Over UI).
     /// </summary>
+    /// <param name="winningColor">Color of the winning player ("white" or "black").</param>
     public void handleChessWinner(string winningColor)
     {
         Debug.Log(winningColor + " wins the chess match!");
         gameOver = true;
 
-        // Later: Trigger duel scene here based on winner
+        // Optional: Add logic to store winner for duel transition
     }
 
     /// <summary>
     /// Called once per frame.
-    /// If the game is over and player clicks, restarts the game.
+    /// If the game is over and player clicks, shows Game Over panel.
     /// </summary>
     public void Update()
     {
-        // Temporary restart logic
-        if (gameOver == true && Mouse.current.leftButton.wasPressedThisFrame)
+        if (gameOver && Mouse.current.leftButton.wasPressedThisFrame)
         {
-            gameOver = false;
-            SceneManager.LoadScene("Game"); // Reloads the current scene
+            gameOverUI.SetActive(true);
         }
+    }
+
+    /// <summary>
+    /// Bound to the "Rematch" button of Game Over Panel.
+    /// Reloads the current gameplay scene.
+    /// </summary>
+    public void OnRematchButtonPressed()
+    {
+        gameOverUI.SetActive(false);
+        gameOver = false;
+        SceneManager.LoadScene(1);
+    }
+
+    /// <summary>
+    /// Bound to the "Menu" button of Game Over Panel.
+    /// Returns to the main menu scene.
+    /// </summary>
+    public void OnMenuButtonPressed()
+    {
+        gameOverUI.SetActive(false);
+        SceneManager.LoadScene(0);
     }
 }
