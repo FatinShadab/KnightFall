@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.InputSystem; // Used for the new Unity Input System
+using TMPro;
 
 /// <summary>
 /// Main Game manager for the KnightFall chess system.
@@ -13,6 +14,8 @@ public class Game : MonoBehaviour
 {
     // Prefab for the chess piece
     public GameObject chesspiece;
+
+    public AudioSource backgroundAudio;
 
     // Reference to the Game Over UI panel
     public GameObject gameOverUI;
@@ -26,6 +29,7 @@ public class Game : MonoBehaviour
 
     // Track which player's turn it is ('w' for white, 'b' for black)
     private char currentPlayer = 'w';
+    private int winner_payer = 1;
 
     // Boolean flag to indicate if the game has ended
     private bool gameOver = false;
@@ -36,6 +40,11 @@ public class Game : MonoBehaviour
     /// </summary>
     void Start()
     {
+        int isMuted = PlayerPrefs.GetInt("BackgroundAudioMuted", 0); // default not muted
+        Debug.Log(isMuted + " audio");
+        backgroundAudio.mute = isMuted == 1;
+        Debug.Log(backgroundAudio.mute + " :~ audio");
+
         // Initialize white player pieces (bottom of the board)
         wPlayer = new GameObject[]
         {
@@ -144,7 +153,9 @@ public class Game : MonoBehaviour
     /// <param name="winningColor">Color of the winning player ("white" or "black").</param>
     public void handleChessWinner(string winningColor)
     {
-        Debug.Log(winningColor + " wins the chess match!");
+        Transform winnerTransform = gameOverUI.transform.Find("Image/winner");
+        TextMeshProUGUI winnerText = winnerTransform.GetComponent<TextMeshProUGUI>();
+        winnerText.SetText(winningColor + " wins the chess match!");
         gameOver = true;
 
         // Optional: Add logic to store winner for duel transition
@@ -156,7 +167,8 @@ public class Game : MonoBehaviour
     /// </summary>
     public void Update()
     {
-        if (gameOver && Mouse.current.leftButton.wasPressedThisFrame)
+        // if (gameOver && Mouse.current.leftButton.wasPressedThisFrame)
+        if (gameOver)
         {
             gameOverUI.SetActive(true);
         }

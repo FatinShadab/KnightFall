@@ -578,6 +578,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   chesspiece: {fileID: 8959652157377770227, guid: 17f133f6a2b50254fa50b3f6e5398601, type: 3}
+  backgroundAudio: {fileID: 200308851}
   gameOverUI: {fileID: 1753319257}
 --- !u!4 &979402845
 Transform:
@@ -737,6 +738,14 @@ PrefabInstance:
     - target: {fileID: 6400146758519196092, guid: ca95653613ca6184fba7d2118787894b, type: 3}
       propertyPath: m_Name
       value: UI
+      objectReference: {fileID: 0}
+    - target: {fileID: 6523165792759293397, guid: ca95653613ca6184fba7d2118787894b, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 176
+      objectReference: {fileID: 0}
+    - target: {fileID: 6523165792759293397, guid: ca95653613ca6184fba7d2118787894b, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -74
       objectReference: {fileID: 0}
     - target: {fileID: 8427754090379265856, guid: ca95653613ca6184fba7d2118787894b, type: 3}
       propertyPath: m_IsActive

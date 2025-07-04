@@ -12,10 +12,22 @@ public class MainMenu : MonoBehaviour
     /// Loads the main gameplay scene.
     /// This method is called when the "Play" button is pressed.
     /// </summary>
+    
+    public bool isMuted = false;
+
     public void PlayGame()
     {
         // Load scene at index 1 (ensure the game scene is set at index 1 in Build Settings)
         SceneManager.LoadSceneAsync(1);
+    }
+
+    public void ToggleAudio()
+    {
+        Debug.Log("BackgroundAudioMuted: " + isMuted);
+        PlayerPrefs.SetInt("BackgroundAudioMuted", isMuted ? 1 : 0);
+        PlayerPrefs.Save();
+        isMuted = isMuted ? false : true;
+        Debug.Log("BackgroundAudioMuted: " + isMuted);
     }
 
     /// <summary>
